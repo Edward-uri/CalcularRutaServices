@@ -42,7 +42,7 @@ instante** (no re-descarga ni re-procesa).
 
 | Archivo | Para qué |
 |---|---|
-| `Dockerfile` | Imagen = `osrm/osrm-backend` + `osmium-tool` + `curl`. |
+| `Dockerfile` | Imagen = `osrm/osrm-backend:v5.25.0` + `osmium-tool` + `curl`. |
 | `docker-entrypoint.sh` | Preprocesa-una-vez y luego sirve. |
 | `docker-compose.yml` | Servicio `osrm` con volumen persistente y healthcheck. |
 | `.env.example` | Variables (URL de datos, BBOX, perfil, flags). |
@@ -137,10 +137,10 @@ wget https://download.geofabrik.de/north-america/mexico-latest.osm.pbf
 osmium extract -b -94.2,14.5,-90.3,17.99 mexico-latest.osm.pbf -o chiapas.osm.pbf
 
 # 2. Preprocesar con la imagen oficial (monta el cwd en /data)
-docker run --rm -v "$PWD:/data" osrm/osrm-backend:v5.27.1 osrm-extract -p /opt/car.lua /data/chiapas.osm.pbf
-docker run --rm -v "$PWD:/data" osrm/osrm-backend:v5.27.1 osrm-partition /data/chiapas.osrm
-docker run --rm -v "$PWD:/data" osrm/osrm-backend:v5.27.1 osrm-customize /data/chiapas.osrm
+docker run --rm -v "$PWD:/data" osrm/osrm-backend:v5.25.0 osrm-extract -p /opt/car.lua /data/chiapas.osm.pbf
+docker run --rm -v "$PWD:/data" osrm/osrm-backend:v5.25.0 osrm-partition /data/chiapas.osrm
+docker run --rm -v "$PWD:/data" osrm/osrm-backend:v5.25.0 osrm-customize /data/chiapas.osrm
 
 # 3. Servir
-docker run --rm -p 5000:5000 -v "$PWD:/data" osrm/osrm-backend:v5.27.1 osrm-routed --algorithm mld /data/chiapas.osrm
+docker run --rm -p 5000:5000 -v "$PWD:/data" osrm/osrm-backend:v5.25.0 osrm-routed --algorithm mld /data/chiapas.osrm
 ```

@@ -1,5 +1,5 @@
 
-FROM osrm/osrm-backend:v5.27.1
+FROM osrm/osrm-backend:v5.25.0
 
 RUN apt-get update \
  && apt-get install -y --no-install-recommends osmium-tool curl ca-certificates \
