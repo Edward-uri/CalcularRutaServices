@@ -1,0 +1,11 @@
+# Datos OSM y mapas preprocesados (pesados, NO commitear — se generan en el volumen)
+data/
+*.osm.pbf
+*.osrm*
+*.ready
+
+# Entorno local
+.env
+/.claude
+
+2026-06-20-calculo-ruta-osrm-design.md

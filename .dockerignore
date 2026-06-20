@@ -1,0 +1,8 @@
+# Mantener el contexto de build chico: nunca subir datos OSM al daemon.
+data/
+*.osm.pbf
+*.osrm*
+*.ready
+.env
+.git
+README.md
