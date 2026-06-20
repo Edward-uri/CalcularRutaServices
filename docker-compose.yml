@@ -1,7 +1,26 @@
 # OSRM self-hosted (Chiapas) para ViajeSeguro.
+# Dos servicios sobre un volumen compartido:
+#   - osrm-prepare: descarga México y lo recorta a la región con osmium (base Debian moderna).
+#                   Corre una vez y termina.
+#   - osrm: preprocesa (extract/partition/customize) si hace falta y sirve osrm-routed en :5000.
 # El puerto 5000 NO se publica al host: el backend lo consume por la red interna
-# (OSRM_URL=http://osrm:5000). Para probar en local, descomenta el bloque `ports`.
+# (OSRM_URL=http://osrm:5000). Para probar en local, descomenta el bloque `ports` del servicio osrm.
 services:
+  osrm-prepare:
+    build:
+      context: .
+      dockerfile: Dockerfile.prepare
+    image: viajeseguro-osrm-prepare:latest
+    restart: "no"
+    environment:
+      GEOFABRIK_URL: ${GEOFABRIK_URL:-https://download.geofabrik.de/north-america/mexico-latest.osm.pbf}
+      BBOX: ${BBOX:--94.2,14.5,-90.3,17.99}
+      OSRM_NAME: ${OSRM_NAME:-chiapas}
+      FORCE_REBUILD: ${FORCE_REBUILD:-false}
+      KEEP_SOURCE_PBF: ${KEEP_SOURCE_PBF:-false}
+    volumes:
+      - osrm-data:/data
+
   osrm:
     build:
       context: .
@@ -9,13 +28,12 @@ services:
     image: viajeseguro-osrm:chiapas
     container_name: osrm
     restart: unless-stopped
+    depends_on:
+      - osrm-prepare
     environment:
-      GEOFABRIK_URL: ${GEOFABRIK_URL:-https://download.geofabrik.de/north-america/mexico-latest.osm.pbf}
-      BBOX: ${BBOX:--94.2,14.5,-90.3,17.99}
       PROFILE: ${PROFILE:-/opt/car.lua}
       OSRM_NAME: ${OSRM_NAME:-chiapas}
       FORCE_REBUILD: ${FORCE_REBUILD:-false}
-      KEEP_SOURCE_PBF: ${KEEP_SOURCE_PBF:-false}
     volumes:
       - osrm-data:/data
     expose:
@@ -23,17 +41,6 @@ services:
     # Solo para pruebas locales desde el host (NO en producción/Coolify):
     # ports:
     #   - "5000:5000"
-    healthcheck:
-      test:
-        - CMD
-        - curl
-        - -fsS
-        - http://localhost:5000/route/v1/driving/-93.095,16.62;-93.098,16.626?overview=false
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      # Margen para el preprocesado de la primera vez (descarga + extract/partition/customize).
-      start_period: 30m
 
 volumes:
   osrm-data:

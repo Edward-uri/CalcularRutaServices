@@ -1,0 +1,13 @@
+# Prepara los datos: descarga el pbf de México y lo recorta a la región con osmium.
+# Base Debian moderna -> apt vigente y certificados al día para el HTTPS de Geofabrik.
+FROM debian:bookworm-slim
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends osmium-tool curl ca-certificates \
+ && rm -rf /var/lib/apt/lists/*
+
+COPY prepare.sh /usr/local/bin/prepare.sh
+RUN chmod +x /usr/local/bin/prepare.sh
+
+VOLUME ["/data"]
+ENTRYPOINT ["/usr/local/bin/prepare.sh"]
