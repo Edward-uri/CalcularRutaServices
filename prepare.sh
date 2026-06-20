@@ -33,9 +33,10 @@ if [ ! -f "$SRC_PBF" ]; then
 fi
 
 echo "[prepare] Recortando bbox ${BBOX} -> ${NAME}.osm.pbf"
-# Escribe a .tmp y renombra: así el otro servicio nunca ve un pbf a medias.
-osmium extract -b "$BBOX" "$SRC_PBF" -o "${REGION_PBF}.tmp" --overwrite
-mv -f "${REGION_PBF}.tmp" "$REGION_PBF"
+# Escribe directo al nombre final (osmium detecta el formato por la extensión .osm.pbf).
+# El orden lo garantiza el sentinel ${NAME}.clipped, que se crea DESPUÉS del recorte:
+# osrm espera ese sentinel, así que nunca lee un pbf a medias.
+osmium extract -b "$BBOX" "$SRC_PBF" -o "$REGION_PBF" --overwrite
 touch "$CLIPPED"
 echo "[prepare] Recorte listo."
 
